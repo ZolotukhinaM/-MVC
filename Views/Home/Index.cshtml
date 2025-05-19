@@ -1,0 +1,18 @@
+﻿@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Главная страница";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Вы вошли как @User.Identity?.Name</p>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <a href="/Admin/Index" class="admin-btn">🔧 Панель администратора</a>
+    }
+</div>
+
+
+

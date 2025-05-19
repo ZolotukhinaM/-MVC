@@ -1,0 +1,33 @@
+﻿<h2>Панель администратора</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div style="color: green; font-weight: bold; margin-bottom: 15px;">
+        @TempData["Success"]
+    </div>
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="d-grid gap-3">
+        <a href="/Admin/UserManagement" class="btn btn-outline-primary btn-lg">
+            👥 Управление сотрудниками
+        </a>
+    </div>
+}
+
+<div class="d-grid gap-3 mt-3">
+    <!-- Ссылка на список товаров -->
+    <a href="@Url.Action("Index", "Good")" class="btn btn-outline-primary btn-lg">
+        📦 Товары
+    </a>
+
+    <a href="@Url.Action("Index", "Customer")" class="btn btn-outline-success btn-lg">
+        🛒 Заказчики (покупатели)
+    </a>
+
+    <a href="@Url.Action("Index", "Orders")" class="btn btn-outline-dark btn-lg">
+        📋 Заказы (продажи)
+    </a>
+</div>
+

@@ -1,0 +1,120 @@
+﻿@model List<Курсовая_работа_MVC.Models.Customer>
+@{
+    ViewData["Title"] = "Список заказчиков";
+    string name = ViewBag.Name as string ?? "";
+    string surname = ViewBag.Surname as string ?? "";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <form method="get" action="@Url.Action("Index", "Admin")">
+        <button type="submit" class="btn btn-outline-secondary">
+            🔙 Вернуться на главную панель
+        </button>
+    </form>
+}
+else if (User.IsInRole("Seller"))
+{
+    <form method="get" action="@Url.Action("Index", "Seller")">
+        <button type="submit" class="btn btn-outline-secondary">
+            🔙 Вернуться на главную панель
+        </button>
+    </form>
+}
+
+<!-- Кнопка способов связи -->
+<div class="mt-3">
+    <a href="@Url.Action("Index", "WayOfConnect")" class="btn btn-outline-dark">
+        📞 Способы связи
+    </a>
+</div>
+
+<h2>Список заказчиков</h2>
+
+<!-- Форма поиска -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form asp-action="Index" method="get" class="form-inline">
+            <div class="form-row align-items-center">
+                <!-- Поле для имени -->
+                <div class="col-auto">
+                    <input type="text" name="name" class="form-control mb-2" 
+                           placeholder="Имя" 
+                           value="@name" />
+                </div>
+                
+                <!-- Поле для фамилии -->
+                <div class="col-auto">
+                    <input type="text" name="surname" class="form-control mb-2" 
+                           placeholder="Фамилия (необязательно)" 
+                           value="@surname" />
+                </div>
+                
+                <!-- Кнопки -->
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary mb-2">
+                        <i class="fas fa-search"></i> Найти
+                    </button>
+                    @if (!string.IsNullOrEmpty(name) || !string.IsNullOrEmpty(surname))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary mb-2">
+                            <i class="fas fa-times"></i> Сбросить
+                        </a>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Кнопки действий -->
+<div class="mb-3">
+    <a href="@Url.Action("Create")" class="btn btn-success">➕ Добавить заказчика</a>
+</div>
+
+<!-- Таблица покупателей -->
+@if (Model.Any())
+{
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Телефон</th>
+                <th>Описание</th>
+                <th>Метод связи</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in Model)
+            {
+                <tr>
+                    <td>@customer.Name</td>
+                    <td>@customer.Surname</td>
+                    <td>@customer.PhoneNumber</td>
+                    <td>@customer.Description</td>
+                    <td>@customer.MethodOfCommunication?.Way</td>
+                    <td>
+                        <a href="@Url.Action("Edit", new { id = customer.Id })" class="btn btn-warning btn-sm">✏️ Редактировать</a>
+                        <form method="post" asp-action="Delete" asp-route-id="@customer.Id" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Удалить заказчика?');">🗑️ Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+
+            <span>Покупатели по запросу не найдены.</span>
+       
+    </div>
+}
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}

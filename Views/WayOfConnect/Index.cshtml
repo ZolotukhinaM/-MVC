@@ -1,0 +1,29 @@
+﻿@model List<Курсовая_работа_MVC.Models.WayOfConnect>
+
+<h2>Способы связи</h2>
+
+<a href="@Url.Action("Create")" class="btn btn-success">➕ Добавить способ связи</a>
+<a href="@Url.Action("Index", "Customer")" class="btn btn-secondary" style="margin-left: 10px;">⬅️ Назад в админку</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Способ связи</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var way in Model)
+        {
+            <tr>
+                <td>@way.Way</td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = way.Id })" class="btn btn-warning">✏️ Редактировать</a>
+                    <form method="post" asp-action="Delete" asp-route-id="@way.Id" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Удалить?');">🗑️ Удалить</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

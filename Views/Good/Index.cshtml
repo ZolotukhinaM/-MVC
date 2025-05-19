@@ -1,0 +1,323 @@
+﻿@model List<Курсовая_работа_MVC.Models.Goods>
+
+@{
+    ViewData["Title"] = "Список товаров";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <form method="get" action="@Url.Action("Index", "Admin")">
+        <button type="submit" class="btn btn-outline-secondary">
+            🔙 Вернуться на главную панель
+        </button>
+    </form>
+}
+else if (User.IsInRole("Seller"))
+{
+    <form method="get" action="@Url.Action("Index", "Seller")">
+        <button type="submit" class="btn btn-outline-secondary">
+            🔙 Вернуться на главную панель
+        </button>
+    </form>
+}
+
+<hr />
+<a href="/GoodCategory/Index" class="btn btn-outline-secondary btn-lg">
+    📂 Категории товаров
+</a>
+
+<a href="/GoodType/Index" class="btn btn-outline-secondary btn-lg">
+    🏷️ Типы товаров
+</a>
+
+<a href="/Material/Index" class="btn btn-outline-secondary btn-lg">
+    🧵 Материалы товаров
+</a>
+
+<h2 class="text-xl font-bold mb-4">Фильтр товаров</h2>
+
+<!-- Форма поиска товаров -->
+<form method="get" asp-action="Index">
+    <div>
+        <label>Название:</label>
+        <input type="text" name="name" value="@Context.Request.Query["name"]" />
+    </div>
+    <div>
+        <label>Категория:</label>
+        <select name="categoryId">
+            <option value="">-- Все категории --</option>
+            @foreach (var category in ViewBag.Categories)
+            {
+                <option value="@category.Id" selected="@((category.Id.ToString() == Context.Request.Query["categoryId"]) ? "selected" : "")">
+                    @category.good_category
+                </option>
+            }
+        </select>
+    </div>
+    <div>
+        <label>Тип:</label>
+        <select name="typeId">
+            <option value="">-- Все типы --</option>
+            @foreach (var type in ViewBag.Types)
+            {
+                <option value="@type.Id" selected="@((type.Id.ToString() == Context.Request.Query["typeId"]) ? "selected" : "")">
+                    @type.GoodTypeName
+                </option>
+            }
+        </select>
+    </div>
+    <div>
+        <label>Материал:</label>
+        <select name="materialId">
+            <option value="">-- Все материалы --</option>
+            @foreach (var material in ViewBag.Materials)
+            {
+                <option value="@material.Id" selected="@((material.Id.ToString() == Context.Request.Query["materialId"]) ? "selected" : "")">
+                    @material.TypeOfMaterial
+                </option>
+            }
+        </select>
+    </div>
+    <div>
+        <label>Цвет:</label>
+        <input type="text" name="color" value="@Context.Request.Query["color"]" />
+    </div>
+    <button type="submit">Поиск</button>
+</form>
+
+<!-- Кнопка добавления нового товара -->
+<button type="button" class="btn btn-outline-success createBtn" id="addGoodBtn">Добавить товар</button>
+
+<!-- Таблица с результатами -->
+<h3 class="text-lg mt-4 mb-2">Результаты:</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Тип</th>
+            <th>Материал</th>
+            <th>Цвет</th>
+            <th>Цена</th>
+            <th>В наличии</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var goods in Model)
+        {
+            <tr>
+                <td>@goods.Name_Of_Good</td>
+                <td>@goods.Category?.good_category</td>
+                <td>@goods.Type?.GoodTypeName</td>
+                <td>@goods.Material?.TypeOfMaterial</td>
+                <td>@goods.Color</td>
+                <td>@goods.Price</td>
+                <td>@goods.Count_In_Availability</td>
+                <td>
+                    <button class="btn btn-outline-warning editBtn" data-id="@goods.Id">Редактировать</button>
+                    <button class="btn btn-outline-danger deleteBtn" data-id="@goods.Id">Удалить</button>
+
+                    @if (goods.IsSet)
+                    {
+                        <a class="btn btn-outline-primary" href="@Url.Action("Details", "Good", new { id = goods.Id })">
+                            📦 Открыть набор
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div id="modalContainer"></div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "1500"
+        };
+
+        $(document).ready(function () {
+            // Обработчик для кнопки "Добавить товар"
+            $('#addGoodBtn').click(function () {
+                $.ajax({
+                    url: '@Url.Action("Create", "Good")',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#modalContainer').html(data);
+                        $('#createModal').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Ошибка при загрузке формы:', error);
+                        toastr.error('Не удалось загрузить форму добавления товара');
+                    }
+                });
+            });
+
+            $(document).on("submit", "#createGoodForm", function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#createModal').modal('hide');
+
+                            if (result.isSet) {
+                                window.location.href = '@Url.Action("AddItemsToSet", "Good")' + '?setId=' + result.setId;
+                            } else {
+                                toastr.success('Товар успешно добавлен!');
+                                setTimeout(function () {
+                                    location.reload();
+                                }, 1500);
+                            }
+                        } else {
+                            // Обработка ошибок валидации
+                            if (result.errors) {
+                                // Очищаем предыдущие ошибки
+                                $('.text-danger').text('');
+
+                                // Выводим ошибки для полей
+                                for (var field in result.errors) {
+                                    var errorMessage = result.errors[field];
+                                    $('[data-valmsg-for="' + field + '"]').text(errorMessage);
+                                }
+
+                                // Показываем общие ошибки
+                                if (result.error) {
+                                    toastr.error(result.error);
+                                }
+                            } else if (result.error) {
+                                toastr.error(result.error);
+                            }
+
+                            // Показываем модальное окно снова
+                            $('#createModal').modal('show');
+                        }
+                    },
+                    error: function (xhr) {
+                        // Обработка ошибок сервера
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            toastr.error(xhr.responseJSON.error);
+                        } else {
+                            toastr.error('Ошибка при сохранении товара');
+                        }
+                    }
+                });
+            });
+
+            $(document).on("click", ".editBtn", function (e) {
+                e.preventDefault();
+                var id = $(this).data("id");
+
+                $.ajax({
+                    url: '@Url.Action("EditGood", "Good")' + '?id=' + id,
+                    type: 'GET',
+                    success: function (data) {
+                        var $modalContainer = $("#modalContainer");
+                        $modalContainer.html(data);
+
+                        var $modal = $('#editModal');
+                        if ($modal.length) {
+                            var modal = new bootstrap.Modal($modal[0]);
+                            modal.show();
+                        } else {
+                            console.error('Modal element not found');
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Error loading edit form', xhr);
+                        alert('Ошибка загрузки формы редактирования');
+                    }
+                });
+            });
+
+            // Обработка формы редактирования товара через AJAX
+            $(document).on("submit", "#editGoodForm", function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#editModal').modal('hide');
+                            toastr.success('Товар успешно обновлен!');
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            // Обработка ошибок валидации
+                            if (result.errors) {
+                                // Очищаем предыдущие ошибки
+                                $('.text-danger').text('');
+
+                                // Выводим ошибки для полей
+                                for (var field in result.errors) {
+                                    var errorMessage = result.errors[field];
+                                    $('[data-valmsg-for="' + field + '"]').text(errorMessage);
+                                }
+
+                                // Показываем общие ошибки
+                                if (result.error) {
+                                    toastr.error(result.error);
+                                }
+                            } else if (result.error) {
+                                toastr.error(result.error);
+                            } else {
+                                // Если сервер вернул HTML (например, при ModelState errors)
+                                $("#modalContainer").html(result);
+                            }
+
+                            // Показываем модальное окно снова
+                            $('#editModal').modal('show');
+                        }
+                    },
+                    error: function (xhr) {
+                        // Обработка ошибок сервера
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            toastr.error(xhr.responseJSON.error);
+                        } else {
+                            toastr.error('Ошибка при обновлении товара');
+                        }
+                    }
+                });
+            });
+
+            // Удаление
+            $(document).on("click", ".deleteBtn", function () {
+                var id = $(this).data("id");
+                $.ajax({
+                    url: '@Url.Action("Delete", new { id = "__id__" })'.replace("__id__", id),
+                    type: 'GET',
+                    success: function (data) {
+                        $("#modalContainer").html(data);
+                        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+                    }
+                });
+            });
+        });
+    </script>
+}

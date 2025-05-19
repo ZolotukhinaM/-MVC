@@ -1,0 +1,12 @@
+﻿@model Курсовая_работа_MVC.Models.WayOfConnect
+
+<h2>Редактировать способ связи</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="Way">Название</label>
+        <input type="text" id="Way" name="Way" class="form-control" value="@Model.Way" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+<a href="@Url.Action("Index")" class="btn btn-secondary" style="margin-top: 10px;">⬅️ Назад</a>

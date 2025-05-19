@@ -1,0 +1,171 @@
+﻿@model Курсовая_работа_MVC.Models.Order
+
+@{
+    ViewData["Title"] = "Детали заказа";
+}
+
+<h2>Детали заказа</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Дата получения:</dt>
+        <dd class="col-sm-9">@Model.ReceivingData.ToString("dd.MM.yyyy HH:mm")</dd>
+
+        <dt class="col-sm-3">Метод оплаты:</dt>
+        <dd class="col-sm-9">@Model.PaymentMethodNavigation.PaymentMethodName</dd>
+
+        <dt class="col-sm-3">Способ получения:</dt>
+        <dd class="col-sm-9">@(Model.ReceivingAnOrder?.TypeOfReceiving ?? "—")</dd>
+
+        <dt class="col-sm-3">Адрес:</dt>
+        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Address) ? "—" : Model.Address)</dd>
+    </dl>
+</div>
+
+<h4 class="mt-4">Информация о покупателе</h4>
+<hr />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Customer.Name @Model.Customer.Surname</h5>
+
+        <dl class="row">
+            <dt class="col-sm-4">Телефон:</dt>
+            <dd class="col-sm-8">@Model.Customer.PhoneNumber</dd>
+
+            @if (!string.IsNullOrEmpty(Model.Customer.Description))
+            {
+                <dt class="col-sm-4">Описание:</dt>
+                <dd class="col-sm-8">@Model.Customer.Description</dd>
+            }
+
+            @if (Model.Customer.MethodOfCommunication != null)
+            {
+                <dt class="col-sm-4">Способ связи:</dt>
+                <dd class="col-sm-8">@Model.Customer.MethodOfCommunication.Way</dd>
+            }
+        </dl>
+    </div>
+</div>
+
+<h4 class="mt-4">Товары в заказе</h4>
+<hr />
+
+@if (Model.OrderGoods.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th style="width: 25%">Товар</th>
+                    <th style="width: 15%">Категория</th>
+                    <th style="width: 10%">Тип</th>
+                    <th style="width: 10%">Материал</th>
+                    <th style="width: 5%">Размер</th>
+                    <th style="width: 5%">Цвет</th>
+                    <th style="width: 5%">Кол-во</th>
+                    <th style="width: 10%">Цена</th>
+                    <th style="width: 10%">Сумма</th>
+                    <th style="width: 5%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderGoods)
+                {
+                    <tr>
+                        <td>
+                            @item.Good.Name_Of_Good
+                            @if (item.Good.IsSet)
+                            {
+                                <button class="btn btn-sm btn-info ms-2"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#setContents-@item.Good.Id"
+                                        title="Показать состав">
+                                    <i class="fas fa-box-open"></i>
+                                </button>
+                            }
+                        </td>
+                        <td>@item.Good.Category?.good_category</td>
+                        <td>@item.Good.Type?.GoodTypeName</td>
+                        <td>@item.Good.Material?.TypeOfMaterial</td>
+                        <td>@(item.Good.Size?.ToString() ?? "—")</td>
+                        <td>@(item.Good.Color ?? "—")</td>
+                        <td>@item.CountOfGood</td>
+                        <td>@(item.Good.Price?.ToString("N0") ?? "—") ₽</td>
+                        <td>@((item.CountOfGood * (item.Good.Price ?? 0)).ToString("N0")) ₽</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-danger" title="Удалить товар">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    @if (item.Good.IsSet)
+                    {
+                        <tr class="collapse" id="setContents-@item.Good.Id">
+                            <td colspan="10">
+                                <div class="ps-4">
+                                    <strong>Состав набора:</strong>
+                                    <ul>
+                                        @foreach (var setItem in item.Good.SetContents)
+                                        {
+                                            <li>
+                                                @setItem.Good.Name_Of_Good - @setItem.CountOfGood шт.
+                                                (Категория: @setItem.Good.Category?.good_category,
+                                                Тип: @setItem.Good.Type?.GoodTypeName)
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                <tr class="table-active">
+                    <td colspan="8" class="text-end"><strong>Итого:</strong></td>
+                    <td><strong>@Model.OrderGoods.Sum(og => og.CountOfGood * (og.Good.Price ?? 0)).ToString("N0") ₽</strong></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">В этом заказе нет товаров</div>
+}
+
+
+<div class="mt-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <i class="fas fa-edit"></i> Редактировать
+    </a>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Назад к списку
+    </a>
+</div>
+
+<style>
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .btn-outline-danger {
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Обработка кнопки удаления товара
+            $('.btn-outline-danger').click(function () {
+                if (confirm('Вы уверены, что хотите удалить этот товар из заказа?')) {
+                    // Здесь будет логика удаления товара
+                    $(this).closest('tr').remove();
+                }
+            });
+        });
+    </script>
+}

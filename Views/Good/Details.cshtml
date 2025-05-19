@@ -1,0 +1,29 @@
+﻿@model Курсовая_работа_MVC.Models.Goods
+
+<h2>Состав набора: @Model.Name_Of_Good</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Название товара</th>
+            <th>Цвет</th>
+            <th>Материал</th>
+            <th>Размер</th>
+            <th>Количество</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.SetContents)
+        {
+            <tr>
+                <td>@item.Good.Name_Of_Good</td>
+                <td>@item.Good.Color</td>
+                <td>@item.Good.Material?.TypeOfMaterial</td>
+                <td>@item.Good.Size</td>
+                <td>@item.CountOfGood</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Index")" class="btn btn-secondary mt-3">⬅️ Назад к списку товаров</a>

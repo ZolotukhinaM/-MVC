@@ -1,0 +1,15 @@
+﻿@model Курсовая_работа_MVC.Models.GoodCategory
+
+<h2>Добавить категорию</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="good_category">Название категории:</label>
+        <input type="text" class="form-control" id="good_category" name="good_category" value="@Model.good_category" />
+        @Html.ValidationMessageFor(m => m.good_category, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+
+<a href="@Url.Action("Index")" class="btn btn-secondary" style="margin-top: 10px;">⬅️ Назад к списку категорий</a>

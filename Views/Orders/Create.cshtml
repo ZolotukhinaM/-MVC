@@ -1,0 +1,266 @@
+﻿@model Курсовая_работа_MVC.Models.CreateOrderViewModel
+@inject Курсовая_работа_MVC.NewAppContext _context
+
+@{
+    ViewData["Title"] = "Добавить заказ";
+
+}
+
+<style>
+    .form-container {
+        max-width: 1300px;
+        margin: 1 auto;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-control-wide {
+        width: 100%;
+        max-width: 800px;
+    }
+    .goods-container {
+        margin-top: 20px;
+    }
+    .goods-container {
+        display: flex;
+        flex-direction: column !important;
+        width: 100%;
+    }
+    .goods-quantity-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 100px; /* Добавлено для равных отступов между полями */
+    }
+    .goods-select {
+        width: 100%;
+        min-width: 500px;
+    }
+    .goods-select-container,
+    .goods-quantity-container {
+        width: 100%;
+    }
+    .goods-quantity {
+        width: 120px;
+        margin-right: 15px;
+    }
+    .remove-btn {
+        width: 100px;
+    }
+    .section-title {
+        margin: 30px 0 15px 0;
+        font-weight: bold;
+    }
+    .btn-add {
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="form-container">
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="Create" method="post">
+        <!-- Основные поля заказа -->
+        <div class="form-group">
+            <label asp-for="Order.ReceivingData" class="form-label"></label>
+            <input asp-for="Order.ReceivingData" class="form-control form-control-wide" type="datetime-local" />
+            <span asp-validation-for="Order.ReceivingData" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.CustomerId" class="form-label"></label>
+            <div class="customer-select-container">
+                <div class="input-group">
+                    <select asp-for="Order.CustomerId"
+                            class="form-control form-control-wide customer-select"
+                            asp-items="ViewBag.CustomerId"
+                            style="width: 100%; min-width: 600px;">
+                    </select>
+                    <div class="input-group-append">
+                        <a href="@Url.Action("Create", "Customer", new {
+                        source = "order",
+                        orderId = Model.Order?.Id
+                    })" class="btn btn-outline-primary">
+                            ➕ Добавить нового
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <span asp-validation-for="Order.CustomerId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.PaymentMethod" class="form-label"></label>
+            <select asp-for="Order.PaymentMethod" class="form-control form-control-wide" asp-items="ViewBag.PaymentMethod"></select>
+            <span asp-validation-for="Order.PaymentMethod" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.MethodOfReceiving" class="form-label"></label>
+            <select asp-for="Order.MethodOfReceiving" class="form-control form-control-wide" asp-items="ViewBag.MethodOfReceiving">
+                <option value="">-- не выбрано --</option>
+            </select>
+            <span asp-validation-for="Order.MethodOfReceiving" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.Address" class="form-label"></label>
+            <input asp-for="Order.Address" class="form-control form-control-wide" />
+            <span asp-validation-for="Order.Address" class="text-danger"></span>
+        </div>
+
+        <!-- Секция товаров -->
+        <h4 class="section-title">Товары в заказе</h4>
+        <div id="goods-container" class="goods-container">
+            <!-- Начальный блок товара -->
+            <div class="goods-item">
+                <div class="goods-select-container">
+                    <select asp-for="Goods[0].GoodId" class="form-control goods-select">
+                        <option value="">-- Выберите товар --</option>
+                        @foreach (var item in ViewBag.Goods as SelectList)
+                        {
+                            var good = await _context.Goods.FindAsync(long.Parse(item.Value));
+                            var availableText = good?.Count_In_Availability > 0
+                            ? $"(в наличии: {good.Count_In_Availability})"
+                            : "(нет в наличии)";
+                            var isDisabled = good?.Count_In_Availability <= 0;
+
+                            <option value="@item.Value"
+                                    data-count="@(good?.Count_In_Availability ?? 0)"
+                                    disabled="@isDisabled">
+                                @item.Text @availableText
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="goods-quantity-container">
+                    <input asp-for="Goods[0].Quantity" class="form-control goods-quantity" type="number" min="1" value="1" placeholder="Количество" />
+                    <button type="button" class="btn btn-outline-danger remove-btn remove-goods">
+                        <i class="fas fa-trash-alt"></i> Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="add-goods" class="btn btn-outline-primary btn-add">
+            <i class="fas fa-plus"></i> Добавить товар
+        </button>
+
+        <!-- Кнопки действий -->
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Сохранить заказ
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    if (urlParams.has('customerAdded') && urlParams.has('newCustomerId')) {
+        const newId = urlParams.get('newCustomerId');
+        refreshCustomerList(newId);
+    }
+
+    function refreshCustomerList(selectedId = null) {
+        fetch('@Url.Action("GetCustomers", "Customer")')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('Order_CustomerId');
+                select.innerHTML = '';
+
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.text = '-- Выберите покупателя --';
+                select.add(emptyOption);
+
+                data.forEach(customer => {
+                    const option = document.createElement('option');
+                    option.value = customer.id;
+                    option.text = customer.name + (customer.surname ? ' ' + customer.surname : '');
+                    if (selectedId && customer.id == selectedId)
+                        option.selected = true;
+                    select.add(option);
+                });
+            });
+    }
+
+    $(document).ready(function () {
+        // Добавление нового товара
+        $('#add-goods').click(function () {
+            var index = $('#goods-container .goods-item').length;
+            var newItem = `
+                    <div class="goods-item">
+                        <div class="goods-select-container">
+                            <select name="Goods[${index}].GoodId" class="form-control goods-select">
+                                <option value="">-- Выберите товар --</option>
+                                @foreach (var item in (SelectList)ViewBag.Goods)
+                                {
+                                   <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="goods-quantity-container">
+                            <input name="Goods[${index}].Quantity" class="form-control goods-quantity" type="number" min="1" value="1" placeholder="Количество" />
+                            <button type="button" class="btn btn-outline-danger remove-btn remove-goods">
+                                <i class="fas fa-trash-alt"></i> Удалить
+                            </button>
+                        </div>
+                    </div>`;
+            $('#goods-container').append(newItem);
+        });
+
+        // Удаление товара
+        $(document).on('click', '.remove-goods', function () {
+            if ($('#goods-container .goods-item').length > 1) {
+                $(this).closest('.goods-item').remove();
+                reindexGoods();
+            } else {
+                alert('Должен остаться хотя бы один товар');
+            }
+        });
+        // $(document).ready(function () {
+        //     // Проверка количества при выборе товара
+        //     $(document).on('change', '.goods-select', function () {
+        //         var selectedOption = $(this).find('option:selected');
+        //         var availableCount = parseInt(selectedOption.data('count') || 0);
+        //         var quantityInput = $(this).closest('.goods-item').find('.goods-quantity');
+
+        //         if (availableCount <= 0) {
+        //             alert('Этот товар отсутствует в наличии!');
+        //             $(this).val('');
+        //             quantityInput.val('1');
+        //         } else {
+        //             quantityInput.attr('max', availableCount);
+        //         }
+        //     });
+
+        //     // Проверка количества при вводе
+        //     $(document).on('input', '.goods-quantity', function () {
+        //         var select = $(this).closest('.goods-item').find('.goods-select');
+        //         var selectedOption = select.find('option:selected');
+        //         var availableCount = parseInt(selectedOption.data('count') || 0);
+        //         var enteredQuantity = parseInt($(this).val()) || 0;
+
+        //         if (enteredQuantity > availableCount) {
+        //             alert(`Максимально доступное количество: ${availableCount}`);
+        //             $(this).val(availableCount > 0 ? availableCount : '1');
+        //         }
+        //     });
+        // });
+        // Переиндексация полей после удаления
+        function reindexGoods() {
+            $('#goods-container .goods-item').each(function (index) {
+                $(this).find('select').attr('name', `Goods[${index}].GoodId`);
+                $(this).find('input').attr('name', `Goods[${index}].Quantity`);
+            });
+        }
+    });
+</script>
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}

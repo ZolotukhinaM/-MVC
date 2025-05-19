@@ -1,0 +1,50 @@
+﻿@model Курсовая_работа_MVC.Models.Order
+
+@{
+    ViewData["Title"] = "Удаление заказа";
+}
+
+<h2>Удаление заказа</h2>
+
+<h3>Вы уверены, что хотите удалить этот заказ?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ReceivingData)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ReceivingData)
+        </dd>
+        <dt class="col-sm-2">
+            Клиент
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Customer.Name) @Html.DisplayFor(model => model.Customer.Surname)
+        </dd>
+        <dt class="col-sm-2">
+            Метод оплаты
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PaymentMethodNavigation.PaymentMethodName)
+        </dd>
+        <dt class="col-sm-2">
+            Способ получения
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.ReceivingAnOrder?.TypeOfReceiving ?? "—")
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd class="col-sm-10">
+            @(string.IsNullOrWhiteSpace(Model.Address) ? "—" : Model.Address)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+    </form>
+</div>

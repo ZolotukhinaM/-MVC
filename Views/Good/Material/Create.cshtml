@@ -1,0 +1,14 @@
+﻿@model Курсовая_работа_MVC.Models.Material
+
+<h2>Добавить материал товара</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="TypeOfMaterial">Название материала</label>
+        <input type="text" class="form-control" id="TypeOfMaterial" name="TypeOfMaterial" value="@Model.TypeOfMaterial" required />
+        @Html.ValidationMessageFor(m => m.TypeOfMaterial, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Отмена</a>
+</form>

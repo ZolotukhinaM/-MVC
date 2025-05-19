@@ -1,0 +1,14 @@
+﻿@model Курсовая_работа_MVC.Models.GoodType
+
+<h2>Добавить новый тип товара</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="GoodTypeName">Название типа товара</label>
+        <input type="text" id="GoodTypeName" name="GoodTypeName" class="form-control" value="@Model.GoodTypeName" required />
+        @Html.ValidationMessageFor(m => m.GoodTypeName, "", new { @class = "text-danger" })
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить</button>
+</form>
+
+<a href="@Url.Action("Index")" class="btn btn-secondary" style="margin-top: 10px;">⬅️ Назад к списку типов</a>

@@ -1,0 +1,61 @@
+﻿@model List<Курсовая_работа_MVC.Models.User>
+
+@{
+    ViewData["Title"] = "Управление сотрудниками";
+}
+@if (TempData["Success"] != null)
+{
+    <div id="successMessage" class="alert alert-success" style="font-weight: bold;">
+        @TempData["Success"]
+    </div>
+}
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            var message = document.getElementById('successMessage');
+            if (message) {
+                message.style.transition = "opacity 0.5s ease-out";
+                message.style.opacity = '0';
+                setTimeout(function () {
+                    message.style.display = 'none';
+                }, 500);
+            }
+        }, 3000); // 3000 миллисекунд = 3 секунды
+    </script>
+}
+
+<a href="@Url.Action("Index", "Admin")" class="btn btn-secondary">⬅️ Назад к панели администратора</a>
+<h2>Управление сотрудниками</h2>
+
+<a href="@Url.Action("CreateUser", "Admin")" class="btn btn-success" style="margin-bottom: 15px;">➕ Добавить сотрудника</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Роль</th>
+            <th>Дата регистрации</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Name</td>
+                <td>@(user.IsAdmin ? "Админ" : "Продавец")</td>
+                <td>@user.RegistrationDate.ToShortDateString()</td>
+                <td>
+                    <form asp-action="ToggleAdmin" method="post" style="display:inline">
+                        <input type="hidden" name="id" value="@user.Id" />
+                        <button type="submit" class="btn btn-sm btn-warning">@((user.IsAdmin ? "Сделать продавцом" : "Сделать админом"))</button>
+                    </form>
+                    <form asp-action="DeleteUser" method="post" style="display:inline" onsubmit="return confirm('Удалить сотрудника?');">
+                        <input type="hidden" name="id" value="@user.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

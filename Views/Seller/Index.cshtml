@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Панель продавца";
+}
+
+<h2>Панель продавца</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div style="color: green; font-weight: bold; margin-bottom: 15px;">
+        @TempData["Success"]
+    </div>
+}
+
+<div class="d-grid gap-3">
+    <!-- Ссылка на список товаров -->
+    <a href="@Url.Action("Index", "Good")" class="btn btn-outline-primary btn-lg">
+        📦 Товары
+    </a>
+
+    <a href="@Url.Action("Index", "Customer")" class="btn btn-outline-success btn-lg">
+        🛒 Заказчики (покупатели)
+    </a>
+
+    <a href="@Url.Action("Index", "Orders")" class="btn btn-outline-dark btn-lg">
+        📋 Заказы (продажи)
+    </a>
+</div>
+

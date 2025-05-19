@@ -1,0 +1,132 @@
+﻿@model Курсовая_работа_MVC.Models.Goods
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="max-width: 1300px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Добавить товар</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createGoodForm" method="post" asp-controller="Good" asp-action="Create">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name_Of_Good" class="form-label">Название товара</label>
+                                <input asp-for="Name_Of_Good" class="form-control" required style="width: 100% !important; min-width: 300px;" />
+                                <span asp-validation-for="Name_Of_Good" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Good_Category" class="form-label">Категория</label>
+                                <select asp-for="Good_Category" class="form-select" style="width: 100% !important; min-width: 300px;">
+                                    @foreach (var category in ViewBag.Categories)
+                                    {
+                                        <option value="@category.Id">@category.good_category</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Good_Category" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Good_Type" class="form-label">Тип</label>
+                                <select asp-for="Good_Type" class="form-select" style="width: 100% !important; min-width: 300px;">
+                                    <option value="">-- Не указано --</option>
+                                    @foreach (var type in ViewBag.Types)
+                                    {
+                                        <option value="@type.Id">@type.GoodTypeName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Good_Type" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Material_Type" class="form-label">Материал</label>
+                                <select asp-for="Material_Type" class="form-select" style="width: 100% !important; min-width: 300px;">
+                                    <option value="">-- Не указано --</option>
+                                    @foreach (var material in ViewBag.Materials)
+                                    {
+                                        <option value="@material.Id">@material.TypeOfMaterial</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Material_Type" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Size" class="form-label">Размер</label>
+                                <input asp-for="Size" type="number" class="form-control" style="width: 100% !important; min-width: 300px;" />
+                                <span asp-validation-for="Size" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Color" class="form-label">Цвет</label>
+                                <input asp-for="Color" class="form-control" style="width: 100% !important; min-width: 300px;" />
+                                <span asp-validation-for="Color" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Count_In_Availability" class="form-label">Количество в наличии</label>
+                                <input asp-for="Count_In_Availability" type="number" min="0" class="form-control" style="width: 100% !important; min-width: 300px;" />
+                                <span asp-validation-for="Count_In_Availability" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Price" class="form-label">Цена</label>
+                                <input asp-for="Price" type="number" min="0" class="form-control" style="width: 100% !important; min-width: 300px;" />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input asp-for="IsSet" class="form-check-input" id="isSetCheckbox" />
+                                    <label asp-for="IsSet" class="form-check-label">Это набор товаров</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="setBuilder" style="display: none;">
+                    <h5>Состав набора</h5>
+                    <div id="setItemsContainer"></div>
+                    <button type="button" class="btn btn-secondary mt-2" id="addSetItem">Добавить товар в набор</button>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+            $('#isSetCheckbox').change(toggleSetBuilder);
+            toggleSetBuilder();
+
+            $('#addSetItem').click(function () {
+                const index = $('#setItemsContainer .set-item').length;
+                const itemHtml = `
+                            <div class="set-item row mb-2">
+                                <div class="col-6">
+                                    <label>Товар:</label>
+                                    <select name="SetItems[${index}].GoodId" class="form-select">
+                                        @foreach (var g in ViewBag.AllGoods ?? new List<Goods>())
+                                        {
+                                               <option value="@g.Id">@g.Name_Of_Good</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label>Количество:</label>
+                                    <input type="number" name="SetItems[${index}].CountOfGood" value="1" min="1" class="form-control" />
+                                </div>
+                                <div class="col-2 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger removeSetItem">✖</button>
+                                </div>
+                            </div>
+                        `;
+                $('#setItemsContainer').append(itemHtml);
+            });
+
+            $(document).on('click', '.removeSetItem', function () {
+                $(this).closest('.set-item').remove();
+            });
+        });
+    </script>
+}

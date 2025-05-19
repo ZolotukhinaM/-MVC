@@ -1,0 +1,184 @@
+﻿@model List<Курсовая_работа_MVC.Models.Order>
+@{
+    ViewData["Title"] = "Список заказов";
+    bool showPastOrders = ViewData["ShowPastOrders"] as bool? ?? false;
+    long? selectedMethod = ViewData["SelectedReceivingMethod"] as long?;
+}
+
+<style>
+    /* Увеличиваем ширину выпадающего списка */
+    .receiving-method-select {
+        width: 250px !important; /* или любое другое значение по вашему вкусу */
+    }
+
+    /* Для мобильных устройств можно сделать адаптивным */
+    @@media (max-width: 768px) {
+        .receiving-method-select {
+            width: 100% !important;
+        }
+    }
+</style>
+
+@if (User.IsInRole("Admin"))
+{
+    <form method="get" action="@Url.Action("Index", "Admin")">
+        <button type="submit" class="btn btn-outline-secondary">
+            🔙 Вернуться на главную панель
+        </button>
+    </form>
+}
+else if (User.IsInRole("Seller"))
+{
+    <form method="get" action="@Url.Action("Index", "Seller")">
+        <button type="submit" class="btn btn-outline-secondary">
+            🔙 Вернуться на главную панель
+        </button>
+    </form>
+}
+
+<div class="mb-4">
+    <button class="btn btn-outline-primary me-2" onclick="window.open('@Url.Action("Index", "Receiving", "Orders")', '_blank')">
+        🚚 Способы получения
+    </button>
+
+    <button class="btn btn-outline-success" onclick="window.open('@Url.Action("Index", "Payment", "Orders")', '_blank')">
+        💳 Способы оплаты
+    </button>
+</div>
+
+<h2>Список заказов</h2>
+
+<!-- Кнопка добавления заказа -->
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">➕ Добавить заказ</a>
+</div>
+
+<!-- Фильтры -->
+<div class="row mb-3">
+    <!-- Поиск по имени клиента -->
+    <div class="col-md-4 mb-2">
+        <form asp-action="Index" method="get" class="form-inline">
+            <input type="hidden" name="showPastOrders" value="@showPastOrders" />
+            <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
+            <input type="hidden" name="receivingMethodId" value="@ViewData["SelectedReceivingMethod"]" />
+
+            <div class="input-group">
+                <input type="text" name="customerName" class="form-control"
+                       placeholder="Поиск по имени клиента"
+                       value="@ViewData["CustomerName"]" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewData["CustomerName"]?.ToString()))
+                    {
+                        <a asp-action="Index"
+                           asp-route-showPastOrders="@showPastOrders"
+                           asp-route-sortOrder="@ViewData["SortOrder"]"
+                           asp-route-receivingMethodId="@ViewData["SelectedReceivingMethod"]"
+                           class="btn btn-outline-secondary">
+                            Сбросить
+                        </a>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <form asp-action="Index" method="get" class="form-inline">
+            <input type="hidden" name="showPastOrders" value="@showPastOrders" />
+            <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
+            <div class="input-group">
+                <select name="receivingMethodId" class="form-control receiving-method-select"
+                        asp-items="ViewBag.ReceivingMethods">
+                    <option value="">Все способы получения</option>
+                </select>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-primary">Фильтровать</button>
+                    @if (selectedMethod.HasValue)
+                    {
+                        <a asp-action="Index"
+                           asp-route-showPastOrders="@showPastOrders"
+                           asp-route-sortOrder="@ViewData["SortOrder"]"
+                           class="btn btn-outline-secondary">
+                            Сбросить
+                        </a>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Блок с кнопкой просмотра прошлых заказов -->
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        @if (showPastOrders)
+        {
+            <a asp-action="Index"
+               asp-route-showPastOrders="false"
+               asp-route-sortOrder="@ViewData["SortOrder"]"
+               asp-route-receivingMethodId="@selectedMethod"
+               class="btn btn-outline-secondary">
+                Вернуться к текущим заказам
+            </a>
+        }
+        else
+        {
+            <a asp-action="Index"
+               asp-route-showPastOrders="true"
+               asp-route-sortOrder="@ViewData["SortOrder"]"
+               asp-route-receivingMethodId="@selectedMethod"
+               class="btn btn-outline-secondary">
+                Посмотреть прошлые заказы
+            </a>
+        }
+    </div>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>
+                <a asp-action="Index"
+                   asp-route-showPastOrders="@showPastOrders"
+                   asp-route-sortOrder="@(ViewData["SortOrder"]?.ToString() == "asc" ? "desc" : "asc")"
+                   asp-route-receivingMethodId="@selectedMethod"
+                   class="text-white text-decoration-none">
+                    Дата получения
+                    @if (ViewData["SortOrder"]?.ToString() == "asc")
+                    {
+                        <span>↑</span>
+                    }
+                    else
+                    {
+                        <span>↓</span>
+                    }
+                </a>
+            </th>
+            <th>Клиент</th>
+            <th>Метод оплаты</th>
+            <th>Способ получения</th>
+            <th>Адрес</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tbody>
+            @foreach (var order in Model)
+            {
+            <tr>
+                <td>@order.ReceivingData.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@order.Customer.Name @order.Customer.Surname</td>
+                <td>@order.PaymentMethodNavigation.PaymentMethodName</td>
+                <td>@(order.ReceivingAnOrder?.TypeOfReceiving ?? "—")</td>
+                <td>@(string.IsNullOrWhiteSpace(order.Address) ? "—" : order.Address)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-info">Подробнее</a>
+                    <a asp-action="Edit" asp-route-id="@order.Id" class="btn btn-sm btn-warning">Редактировать</a>
+                    <a asp-action="Delete" asp-route-id="@order.Id" class="btn btn-sm btn-danger">Удалить</a>
+                </td>
+            </tr>
+            }
+    </tbody>
+</table>

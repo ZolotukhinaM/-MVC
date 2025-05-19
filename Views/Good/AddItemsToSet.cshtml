@@ -1,0 +1,171 @@
+﻿@model List<Курсовая_работа_MVC.Models.Goods>
+@{
+    ViewData["Title"] = "Добавление товаров в набор";
+    var set = ViewBag.Set as Курсовая_работа_MVC.Models.Goods;
+}
+
+<h2>Добавление товаров в набор: @set.Name_Of_Good</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-warning">Нет доступных товаров для добавления в набор</div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Доступные товары</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="searchGood" class="form-control" placeholder="Название товара">
+                        <button class="btn btn-primary" id="searchBtn">Поиск</button>
+                    </div>
+
+                    <div id="searchResults" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                        @foreach (var good in Model)
+                        {
+                            <div class="list-group-item good-item" data-id="@good.Id">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6>@good.Name_Of_Good</h6>
+                                        <small class="text-muted">Категория: @good.Category?.good_category</small>
+                                    </div>
+                                    <div>
+                                        <input type="number" min="1" value="1" class="form-control count-input" style="width: 80px;">
+                                        <button class="btn btn-sm btn-success add-to-set">Добавить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Текущий состав набора</h5>
+                </div>
+                <div class="card-body">
+                    <div id="setItemsList">
+                        <p class="text-muted">Товары еще не добавлены</p>
+                    </div>
+                    <div class="mt-3">
+                        <button id="finishBtn" class="btn btn-success">Завершить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script>
+        $(function () {
+            // Инициализация
+            loadSetItems();
+
+            // Добавление товара в набор с перезагрузкой страницы
+            $(document).on('click', '.add-to-set', function () {
+                const $btn = $(this);
+                const $goodItem = $btn.closest('.good-item');
+                const goodId = $goodItem.data('id');
+                const countInput = $btn.siblings('.count-input');
+                const count = parseInt(countInput.val());
+
+                if (isNaN(count) || count < 1) {
+                    toastr.error('Укажите количество (минимум 1)');
+                    countInput.focus();
+                    return;
+                }
+
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+                $.post('@Url.Action("AddItemToSet", "Good")', {
+                    setId: @set.Id,
+                    goodId: goodId,
+                    count: count
+                })
+                    .done(function (response) {
+                        if (response.success) {
+                            // Сохраняем позицию прокрутки перед перезагрузкой
+                            const scrollPosition = window.scrollY;
+                            location.reload();
+                            window.scrollTo(0, scrollPosition);
+                        } else {
+                            toastr.error(response.error || 'Ошибка при добавлении');
+                            $btn.prop('disabled', false).text('Добавить');
+                        }
+                    })
+                    .fail(function (xhr) {
+                        toastr.error('Ошибка сервера: ' + xhr.responseText);
+                        $btn.prop('disabled', false).text('Добавить');
+                    });
+            });
+
+            function loadSetItems() {
+                $.ajax({
+                    url: '@Url.Action("GetSetItems", "Good")',
+                    method: 'GET',
+                    data: { setId: @set.Id },
+                    cache: false,
+                    success: function (data) {
+                        refreshSetItemsList(data);
+                    },
+                    error: function () {
+                        toastr.error('Не удалось загрузить состав набора');
+                    }
+                });
+            }
+
+            function refreshSetItemsList(items) {
+                const $container = $('#setItemsList');
+                $container.empty();
+
+                if (!items || items.length === 0) {
+                    $container.html('<p class="text-muted">Товары еще не добавлены</p>');
+                } else {
+                    const $list = $('<ul class="list-group"></ul>');
+
+                    items.forEach(item => {
+                        $list.append(`
+            <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${item.id}">
+                ${item.goodName} (${item.count} шт.)
+                <button class="btn btn-sm btn-danger remove-item">Удалить</button>
+            </li>`);
+
+                    });
+
+                    $container.append($list);
+                }
+            }
+
+            $(document).on('click', '.remove-item', function () {
+                const itemId = $(this).closest('li').data('id');
+
+                if (!confirm('Удалить товар из набора?')) return;
+
+                $.ajax({
+                    url: '@Url.Action("RemoveSetItem", "Good")/' + itemId,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    cache: false
+                })
+                    .done(function (response) {
+                        location.reload(); // Простой reload
+                    })
+                    .fail(function (xhr) {
+                        toastr.error('Ошибка сервера: ' + (xhr.responseText || xhr.statusText));
+                    });
+            });
+
+
+            $('#finishBtn').click(function () {
+                window.location.href = '@Url.Action("Index", "Good")';
+            });
+        });
+    </script>
+}

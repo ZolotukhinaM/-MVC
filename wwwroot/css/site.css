@@ -1,0 +1,212 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+/* Обертка для поля пароля и глазика */
+.password-field {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Расстояние между полем пароля и глазиком */
+}
+
+/* Поле ввода пароля */
+#password {
+    padding-right: 30px; /* Место для глазика */
+    width: 100%; /* Поле на всю доступную ширину */
+}
+
+
+
+/* Кнопка глазика */
+.eye-icon {
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none; /* Чтобы глазик не был выделен при клике */
+}
+
+/* Обертка для поля пароля и кнопки глазика, чтобы они выровнялись */
+div.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Для выравнивания всех полей на одной строке */
+form div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px; /* Добавление отступа между полями */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    margin: 0 auto;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+nav ul li a {
+    display: inline-block; /* Отображаем ссылку как блок */
+    padding: 10px 20px; /* Внутренние отступы */
+    background-color: #616161;
+    color: white; /*  цвет текста */
+    text-decoration: none !important; /* Убираем подчеркивание */
+    border-radius: 5px; /* Скругленные углы */
+    font-weight: bold; /* Жирный шрифт */
+    transition: background-color 0.4s ease; /* Плавное изменение фона */
+}
+
+    /* Эффект при наведении */
+    nav ul li a:hover {
+        background-color: #4CAF50 /* Темный красный цвет при наведении */
+    }
+
+/* Убираем маркеры и отступы у списка */
+nav ul {
+    list-style-type: none; /* Убираем маркеры */
+    padding-left: 0; /* Убираем отступы */
+    margin: 0; /* Убираем отступы */
+}
+
+    nav ul li {
+        margin-right: 10px; /* Отступ между пунктами */
+    }
+
+
+
+
+.admin-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+    .admin-actions a {
+        display: inline-block;
+        padding: 10px 20px;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+        .admin-actions a.add-user {
+            background-color: #4CAF50;
+        }
+
+        .admin-actions a.user-list {
+            background-color: #616161;
+        }
+
+        .admin-actions a:hover {
+            background-color: #3e8e41;
+        }
+.admin-btn {
+    display: inline-block;
+    padding: 10px 16px;
+    margin-top: 20px;
+    background-color: #607d8b;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.admin-btn:hover {
+    background-color: #455a64;
+}
+
+/* Общие стили для кнопок */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 20px; /* Отступ сверху */
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    width: 100%; /* Кнопки будут растягиваться на всю ширину доступного контейнера */
+}
+
+/* Стиль для кнопки "Добавить сотрудника" */
+.btn-primary {
+    background-color: #4CAF50;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+/* Стиль для кнопки "Вернуться на панель администратора" */
+.btn-secondary {
+    background-color: #616161;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+/* Эффекты при наведении на кнопки */
+.btn-primary:hover {
+    background-color: #45a049;
+}
+
+.btn-secondary:hover {
+    background-color: #4CAF50;
+}
+
+/* Для кнопок в разных строках */
+a.btn {
+    display: block; /* Каждая кнопка будет на новой строке */
+    margin-bottom: 15px; /* Добавим отступ между кнопками */
+}
+
+#goods-container {
+    display: flex;
+    flex-direction: column; /* <-- ключевой момент */
+    gap: 20px; /* Расстояние между товарами */
+}
+/* Стили для выпадающего списка покупателей */
+.customer-select-container {
+    width: 100%;
+}
+
+.customer-select {
+    width: 100%;
+    min-width: 600px; /* Увеличиваем минимальную ширину */
+}
+
+/* Стили для выпадающего списка */
+select.form-control-wide {
+    width: 100%;
+    min-width: 600px;
+}

@@ -1,0 +1,27 @@
+﻿@model Курсовая_работа_MVC.Models.WayOfConnect
+
+@{
+    ViewData["Title"] = "Добавить способ связи";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label asp-for="Way" class="control-label">Название</label>
+        <input asp-for="Way" class="form-control" />
+        <span asp-validation-for="Way" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Добавить</button>
+</form>
+
+<a href="@Url.Action("Index")" class="btn btn-secondary mt-3">⬅️ Назад</a>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+}

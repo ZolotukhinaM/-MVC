@@ -1,0 +1,227 @@
+﻿@model Курсовая_работа_MVC.Models.EditOrderViewModel
+
+@{
+    ViewData["Title"] = "Редактирование заказа";
+}
+
+<style>
+    .form-container {
+        max-width: 1200px; /* Уменьшил максимальную ширину для лучшего восприятия */
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control-wide {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .goods-container {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        width: 200%;
+    }
+
+    .goods-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .goods-quantity-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .goods-select {
+        width: 100%;
+    }
+
+    .goods-select-container {
+        width: 100%;
+    }
+
+    .goods-quantity {
+        width: 200px; /* Увеличил ширину поля количества */
+        margin-right: 20px;
+    }
+
+    .remove-btn {
+        width: 150px; /* Увеличил ширину кнопки удаления */
+        align-self: flex-end;
+    }
+
+    .section-title {
+        margin: 30px 0 15px 0;
+        font-weight: bold;
+    }
+
+    .btn-add {
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .quantity-group {
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+<div class="form-container">
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Order.Id" />
+
+        <!-- Основные поля заказа -->
+        <div class="form-group">
+            <label asp-for="Order.ReceivingData" class="control-label"></label>
+            <input asp-for="Order.ReceivingData" class="form-control form-control-wide" type="datetime-local" />
+            <span asp-validation-for="Order.ReceivingData" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.CustomerId" class="control-label"></label>
+            <select asp-for="Order.CustomerId" class="form-control form-control-wide" asp-items="ViewBag.CustomerId"></select>
+            <span asp-validation-for="Order.CustomerId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.PaymentMethod" class="control-label"></label>
+            <select asp-for="Order.PaymentMethod" class="form-control form-control-wide" asp-items="ViewBag.PaymentMethod"></select>
+            <span asp-validation-for="Order.PaymentMethod" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.MethodOfReceiving" class="control-label"></label>
+            <select asp-for="Order.MethodOfReceiving" class="form-control form-control-wide" asp-items="ViewBag.MethodOfReceiving">
+                <option value="">-- не выбрано --</option>
+            </select>
+            <span asp-validation-for="Order.MethodOfReceiving" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Order.Address" class="control-label"></label>
+            <input asp-for="Order.Address" class="form-control form-control-wide" />
+            <span asp-validation-for="Order.Address" class="text-danger"></span>
+        </div>
+
+        <!-- Секция товаров в заказе -->
+        <h4 class="section-title">Товары в заказе</h4>
+        <div id="order-goods-container" class="goods-container">
+            @for (var i = 0; i < Model.OrderGoods.Count; i++)
+            {
+                <div class="goods-item">
+                    <input type="hidden" asp-for="OrderGoods[i].Id" />
+                    <input type="hidden" asp-for="OrderGoods[i].ToDelete" class="delete-flag" />
+
+                    <div class="goods-select-container">
+                        <label class="control-label">Товар</label>
+                        <select asp-for="OrderGoods[i].GoodId" class="form-control goods-select" asp-items="Model.AvailableGoods">
+                            <option value="">-- Выберите товар --</option>
+                        </select>
+                        <span asp-validation-for="OrderGoods[i].GoodId" class="text-danger"></span>
+                    </div>
+
+                    <div class="goods-quantity-container">
+                        <div class="quantity-group">
+                            <label class="control-label" style="margin-right: 10px;">Количество:</label>
+                            <input asp-for="OrderGoods[i].CountOfGood" class="form-control goods-quantity" type="number" min="1" />
+                            <span asp-validation-for="OrderGoods[i].CountOfGood" class="text-danger"></span>
+                        </div>
+                        <button type="button" class="btn btn-danger remove-btn remove-goods-btn">
+                            <i class="fas fa-trash-alt"></i> Удалить
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button type="button" id="add-goods-btn" class="btn btn-outline-primary btn-add">
+            <i class="fas fa-plus"></i> Добавить товар
+        </button>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Сохранить изменения
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            // Получаем список товаров для динамического добавления
+            var goodsOptions = '';
+        @foreach (var item in Model.AvailableGoods)
+        {
+            @:goodsOptions += '<option value="@item.Value">@Html.Raw(item.Text)</option>';
+        }
+
+                // Добавление нового товара
+                $('#add-goods-btn').click(function () {
+                    var index = $('#order-goods-container .goods-item').length;
+                    var newItem = `
+                                    <div class="goods-item">
+                                        <input type="hidden" name="OrderGoods[${index}].Id" value="0" />
+                                        <input type="hidden" name="OrderGoods[${index}].ToDelete" class="delete-flag" value="false" />
+
+                                        <div class="goods-select-container">
+                                            <label class="control-label">Товар</label>
+                                            <select name="OrderGoods[${index}].GoodId" class="form-control goods-select">
+                                                <option value="">-- Выберите товар --</option>
+                                                ${goodsOptions}
+                                            </select>
+                                        </div>
+
+                                        <div class="goods-quantity-container">
+                                            <div class="quantity-group">
+                                                <label class="control-label" style="margin-right: 10px;">Количество:</label>
+                                                <input name="OrderGoods[${index}].CountOfGood" class="form-control goods-quantity" type="number" min="1" value="1" />
+                                            </div>
+                                            <button type="button" class="btn btn-danger remove-btn remove-goods-btn">
+                                                <i class="fas fa-trash-alt"></i> Удалить
+                                            </button>
+                                        </div>
+                                    </div>`;
+                    $('#order-goods-container').append(newItem);
+                });
+
+            // Удаление товара
+            $(document).on('click', '.remove-goods-btn', function () {
+                var item = $(this).closest('.goods-item');
+                var idInput = item.find('input[name$=".Id"]');
+
+                if (idInput.val() === "0") {
+                    item.remove();
+                } else {
+                    item.find('.delete-flag').val("true");
+                    item.hide();
+                }
+            });
+        });
+    </script>
+}

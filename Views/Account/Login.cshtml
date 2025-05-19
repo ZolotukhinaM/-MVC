@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Вход";
+}
+
+<form asp-action="Login" method="post">
+    <div style="margin-bottom: 10px;">
+        <label for="name">Имя:</label>
+        <input type="text" id="name" name="name" />
+        @if (ViewBag.NameError != null)
+        {
+            <span style="color: red; font-size: 12px;">@ViewBag.NameError</span>
+        }
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <label for="password">Пароль:</label>
+        <div class="password-container">
+            <input type="password" id="password" name="password" style="flex-grow: 1; margin-right: 10px;" />
+            <!-- Кнопка для скрытия/отображения пароля -->
+            <button type="button" id="togglePassword" class="eye-icon">
+                👁️
+            </button>
+        </div>
+        @if (ViewBag.PasswordError != null)
+        {
+            <span style="color: red; font-size: 12px;">@ViewBag.PasswordError</span>
+        }
+    </div>
+
+    <button type="submit">Войти</button>
+</form>
+
+@if (ViewBag.Message != null)
+{
+    <p style="color:red;">@ViewBag.Message</p>
+}
+
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        var passwordField = document.getElementById('password');
+        var type = passwordField.type === 'password' ? 'text' : 'password';
+        passwordField.type = type;
+    });
+</script>

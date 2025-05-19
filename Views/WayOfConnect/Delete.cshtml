@@ -1,0 +1,26 @@
+﻿@model Курсовая_работа_MVC.Models.WayOfConnect
+
+@{
+    ViewData["Title"] = "Удалить способ связи";
+}
+
+<h2>Удалить способ связи</h2>
+
+<h3>Вы уверены, что хотите удалить этот способ связи?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Way)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Way)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Удалить" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
