@@ -45,8 +45,6 @@ namespace Курсовая_работа_MVC
             modelBuilder.Entity<Order>()
                 .Property(o => o.ReceivingData)
                 .HasColumnType("timestamp without time zone");
-
         }
-
     }
 }

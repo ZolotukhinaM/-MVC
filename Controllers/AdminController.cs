@@ -8,6 +8,7 @@ using Npgsql;
 
 namespace Курсовая_работа_MVC.Controllers
 {
+    // Контроллер для управления пользователями системы
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
@@ -110,7 +111,11 @@ namespace Курсовая_работа_MVC.Controllers
         }
         public IActionResult UserManagement()
         {
-            var users = _context.Users.ToList();
+            // Получаем всех пользователей и сортируем по имени в алфавитном порядке
+            var users = _context.Users
+                .OrderBy(u => u.Name)
+                .ToList();
+
             return View(users);
         }
     }

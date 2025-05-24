@@ -54,21 +54,21 @@ else if (User.IsInRole("Seller"))
 </div>
 
 <!-- Фильтры -->
-<div class="row mb-3">
-    <!-- Поиск по имени клиента -->
-    <div class="col-md-4 mb-2">
+<div class="row mb-3 g-2">
+    <div class="col-md-6">
         <form asp-action="Index" method="get" class="form-inline">
-            <input type="hidden" name="showPastOrders" value="@showPastOrders" />
-            <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
-            <input type="hidden" name="receivingMethodId" value="@ViewData["SelectedReceivingMethod"]" />
-
             <div class="input-group">
+                <input type="hidden" name="showPastOrders" value="@showPastOrders" />
+                <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
+                <input type="hidden" name="receivingMethodId" value="@ViewData["SelectedReceivingMethod"]" />
+
                 <input type="text" name="customerName" class="form-control"
                        placeholder="Поиск по имени клиента"
                        value="@ViewData["CustomerName"]" />
+
                 <div class="input-group-append">
-                    <button type="submit" class="btn btn-outline-primary">
-                        <i class="fas fa-search"></i>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Поиск
                     </button>
                     @if (!string.IsNullOrEmpty(ViewData["CustomerName"]?.ToString()))
                     {
@@ -77,36 +77,55 @@ else if (User.IsInRole("Seller"))
                            asp-route-sortOrder="@ViewData["SortOrder"]"
                            asp-route-receivingMethodId="@ViewData["SelectedReceivingMethod"]"
                            class="btn btn-outline-secondary">
-                            Сбросить
+                            <i class="fas fa-times"></i>
                         </a>
                     }
                 </div>
             </div>
         </form>
     </div>
-    <div class="col-md-4">
+
+    <!-- Фильтр по способу получения -->
+    <div class="col-md-6">
         <form asp-action="Index" method="get" class="form-inline">
-            <input type="hidden" name="showPastOrders" value="@showPastOrders" />
-            <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
             <div class="input-group">
-                <select name="receivingMethodId" class="form-control receiving-method-select"
+                <input type="hidden" name="showPastOrders" value="@showPastOrders" />
+                <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
+
+                <select name="receivingMethodId" class="form-select"
                         asp-items="ViewBag.ReceivingMethods">
                     <option value="">Все способы получения</option>
                 </select>
+
                 <div class="input-group-append">
-                    <button type="submit" class="btn btn-outline-primary">Фильтровать</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Фильтр
+                    </button>
                     @if (selectedMethod.HasValue)
                     {
                         <a asp-action="Index"
                            asp-route-showPastOrders="@showPastOrders"
                            asp-route-sortOrder="@ViewData["SortOrder"]"
                            class="btn btn-outline-secondary">
-                            Сбросить
+                            <i class="fas fa-times"></i>
                         </a>
                     }
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<div class="row mb-3 g-2">
+    <div class="col-md-12">
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Index"
+               asp-route-showPastOrders="@showPastOrders"
+               asp-route-sortOrder="@ViewData["SortOrder"]"
+               class="btn btn-outline-secondary">
+                <i class="fas fa-sync-alt"></i> Сбросить все
+            </a>
+        </div>
     </div>
 </div>
 

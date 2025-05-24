@@ -123,7 +123,7 @@
                             var good = await _context.Goods.FindAsync(long.Parse(item.Value));
                             var availableText = good?.Count_In_Availability > 0
                             ? $"(в наличии: {good.Count_In_Availability})"
-                            : "(нет в наличии)";
+                            : "";
                             var isDisabled = good?.Count_In_Availability <= 0;
 
                             <option value="@item.Value"
@@ -222,35 +222,6 @@
                 alert('Должен остаться хотя бы один товар');
             }
         });
-        // $(document).ready(function () {
-        //     // Проверка количества при выборе товара
-        //     $(document).on('change', '.goods-select', function () {
-        //         var selectedOption = $(this).find('option:selected');
-        //         var availableCount = parseInt(selectedOption.data('count') || 0);
-        //         var quantityInput = $(this).closest('.goods-item').find('.goods-quantity');
-
-        //         if (availableCount <= 0) {
-        //             alert('Этот товар отсутствует в наличии!');
-        //             $(this).val('');
-        //             quantityInput.val('1');
-        //         } else {
-        //             quantityInput.attr('max', availableCount);
-        //         }
-        //     });
-
-        //     // Проверка количества при вводе
-        //     $(document).on('input', '.goods-quantity', function () {
-        //         var select = $(this).closest('.goods-item').find('.goods-select');
-        //         var selectedOption = select.find('option:selected');
-        //         var availableCount = parseInt(selectedOption.data('count') || 0);
-        //         var enteredQuantity = parseInt($(this).val()) || 0;
-
-        //         if (enteredQuantity > availableCount) {
-        //             alert(`Максимально доступное количество: ${availableCount}`);
-        //             $(this).val(availableCount > 0 ? availableCount : '1');
-        //         }
-        //     });
-        // });
         // Переиндексация полей после удаления
         function reindexGoods() {
             $('#goods-container .goods-item').each(function (index) {

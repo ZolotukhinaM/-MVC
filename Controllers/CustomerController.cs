@@ -20,13 +20,10 @@ namespace Курсовая_работа_MVC.Controllers.Customers
             IQueryable<Customer> query = _context.Customers
                 .Include(c => c.MethodOfCommunication);
 
-            // Фильтрация по имени (если указано)
             if (!string.IsNullOrEmpty(name))
             {
                 query = query.Where(c => c.Name.Contains(name));
             }
-
-            // Фильтрация по фамилии (если указано)
             if (!string.IsNullOrEmpty(surname))
             {
                 query = query.Where(c => c.Surname != null && c.Surname.Contains(surname));

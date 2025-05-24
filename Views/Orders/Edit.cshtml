@@ -6,7 +6,7 @@
 
 <style>
     .form-container {
-        max-width: 1200px; /* Уменьшил максимальную ширину для лучшего восприятия */
+        max-width: 1200px;
         margin: 0 auto;
         padding: 0 20px;
     }
@@ -57,12 +57,12 @@
     }
 
     .goods-quantity {
-        width: 200px; /* Увеличил ширину поля количества */
+        width: 200px; 
         margin-right: 20px;
     }
 
     .remove-btn {
-        width: 150px; /* Увеличил ширину кнопки удаления */
+        width: 150px;
         align-self: flex-end;
     }
 
@@ -89,7 +89,6 @@
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="Order.Id" />
 
-        <!-- Основные поля заказа -->
         <div class="form-group">
             <label asp-for="Order.ReceivingData" class="control-label"></label>
             <input asp-for="Order.ReceivingData" class="form-control form-control-wide" type="datetime-local" />

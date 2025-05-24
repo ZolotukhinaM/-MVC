@@ -73,15 +73,38 @@ namespace Курсовая_работа_MVC.Controllers
         [HttpGet]
         public IActionResult Create(bool customerAdded = false, long? newCustomerId = null)
         {
-            // Получаем только товары с положительным количеством
+            // Получаем все товары, которые должны отображаться
             var availableGoods = _context.Goods
-                .Where(g => g.Count_In_Availability > 0)
+                .Where(g => g.Count_In_Availability > 0 || g.IsSet)
+                .Select(g => new {
+                    Id = g.Id,
+                    Name = g.Name_Of_Good,
+                    IsSet = g.IsSet,
+                    Count = g.Count_In_Availability
+                })
                 .ToList();
 
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "Id", "Name");
+            ViewData["Goods"] = new SelectList(
+                availableGoods.Select(g => new {
+                    Id = g.Id,
+                    DisplayName = g.IsSet ? g.Name :
+                                (g.Count > 0 ? $"{g.Name}" : g.Name)
+                }),
+                "Id",
+                "DisplayName"
+            );
+
+            ViewData["CustomerId"] = new SelectList(
+                _context.Customers.Select(c => new {
+                    Id = c.Id,
+                    FullName = $"{c.Name} {c.Surname}"
+                }),
+                "Id",
+                "FullName"
+            );
+
             ViewData["PaymentMethod"] = new SelectList(_context.PaymentMethod, "Id", "PaymentMethodName");
             ViewData["MethodOfReceiving"] = new SelectList(_context.ReceivingAnOrder, "Id", "TypeOfReceiving");
-            ViewData["Goods"] = new SelectList(availableGoods, "Id", "Name_Of_Good");
 
             if (customerAdded && newCustomerId.HasValue)
             {
@@ -93,7 +116,6 @@ namespace Курсовая_работа_MVC.Controllers
                 Goods = new List<OrderGoodsViewModel> { new OrderGoodsViewModel() }
             });
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateOrderViewModel model)
@@ -116,7 +138,7 @@ namespace Курсовая_работа_MVC.Controllers
                         }
 
                         // Проверка для обычного товара
-                        if (!good.IsSet && (good.Count_In_Availability == null || good.Count_In_Availability < goodsItem.Quantity))
+                        if (!good.IsSet && (good.Count_In_Availability < goodsItem.Quantity))
                         {
                             ModelState.AddModelError("",
                                 $"Недостаточно товара '{good.Name_Of_Good}' в наличии (требуется: {goodsItem.Quantity}, доступно: {good.Count_In_Availability ?? 0})");

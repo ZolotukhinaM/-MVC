@@ -12,7 +12,6 @@
             <form id="editGoodForm" method="post" asp-action="EditGood" asp-route-id="@Model.Id" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailure">
                 <div class="modal-body">
                     <div class="row g-4">
-                        <!-- Название товара -->
                         <div class="col-12">
                             <label for="Name_Of_Good" class="form-label">Название товара</label>
                             <input type="text" class="form-control form-control-lg" id="Name_Of_Good" name="Name_Of_Good" value="@Model.Name_Of_Good" required />
@@ -32,7 +31,7 @@
 
                         <div class="col-12">
                             <label for="TypeId" class="form-label">Тип</label>
-                            <select class="form-select form-select-lg" name="Good_Type" required>
+                            <select class="form-select form-select-lg" name="Good_Type">
                                 @foreach (var type in ViewBag.Types)
                                 {
                                     <option value="@type.Id" selected="@(Model.Good_Type == type.Id ? "selected" : null)">
@@ -55,23 +54,18 @@
                             </select>
                         </div>
 
-
-                        <!-- Цвет -->
                         <div class="col-12">
                             <label for="Color" class="form-label">Цвет</label>
                             <input type="text" class="form-control form-control-lg" id="Color" name="Color" value="@Model.Color" />
                         </div>
 
-                        <!-- Цена -->
                         <div class="col-12">
                             <label for="Price" class="form-label">Цена</label>
-                            <input type="number" class="form-control form-control-lg" id="Price" name="Price" value="@Model.Price" required />
+                            <input type="number" class="form-control form-control-lg" id="Price" name="Price" value="@Model.Price"/>
                         </div>
-
-                        <!-- В наличии -->
                         <div class="col-12">
                             <label for="Count_In_Availability" class="form-label">В наличии</label>
-                            <input type="number" class="form-control form-control-lg" id="Count_In_Availability" name="Count_In_Availability" value="@Model.Count_In_Availability" required />
+                            <input type="number" class="form-control form-control-lg" id="Count_In_Availability" name="Count_In_Availability" value="@Model.Count_In_Availability"/>
                         </div>
                     </div>
                 </div>

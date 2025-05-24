@@ -16,14 +16,26 @@ namespace Курсовая_работа_MVC.Controllers
         {
             _context = context;
         }
+
         [HttpGet]
         public IActionResult Login() => View();
 
         [HttpPost]
         public async Task<IActionResult> Login(string name, string password)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Name == name);
+            // Валидация пустых полей
+            if (string.IsNullOrEmpty(name))
+            {
+                ViewBag.NameError = "Введите имя пользователя";
+                return View();
+            }
+            if (string.IsNullOrEmpty(password))
+            {
+                ViewBag.PasswordError = "Введите пароль";
+                return View();
+            }
 
+            var user = _context.Users.FirstOrDefault(u => u.Name == name);
             if (user == null)
             {
                 ViewBag.Message = "Неверный логин или пароль";
@@ -37,18 +49,19 @@ namespace Курсовая_работа_MVC.Controllers
                 ViewBag.Message = "Ошибка хеширования пароля.";
                 return View();
             }
-            byte[] salt = Convert.FromBase64String(parts[0]);
-            string storedHash = parts[1];
+
+            byte[] salt = Convert.FromBase64String(parts[0]); // Соль
+            string storedHash = parts[1]; // Хеш
             // Хешируем введённый пароль с той же солью
             string hashedPassword = HashPasswordWithSalt(password, salt);
 
-            // Сравниваем хеши
-            if (hashedPassword != storedHash)
+            if (hashedPassword != storedHash) // Сравнение хешей
             {
                 ViewBag.Message = "Неверный логин или пароль";
                 return View();
             }
-            // Логика входа
+
+            // Создание куки для аутентификации
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Name),
@@ -58,7 +71,7 @@ namespace Курсовая_работа_MVC.Controllers
             var principal = new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync("CookieAuth", principal);
-
+            // Перенаправляем на панели в зависимости от роли
             if (user.IsAdmin)
             {
                 return RedirectToAction("Index", "Admin");
@@ -75,9 +88,9 @@ namespace Курсовая_работа_MVC.Controllers
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: password,
                 salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 100000,
-                numBytesRequested: 256 / 8));
+                prf: KeyDerivationPrf.HMACSHA256, // Хеширование
+                iterationCount: 100000, // Кол-во итераций
+                numBytesRequested: 256 / 8)); // Длина выходного хеша
 
             return hashed;
         }

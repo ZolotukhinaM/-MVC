@@ -19,12 +19,12 @@ namespace Курсовая_работа_MVC.Controllers.Goods
         public IActionResult Index()
         {
             var goodTypes = _context.GoodTypes.ToList();
-            return View("/Views/Good/GoodType/Index.cshtml", goodTypes);  // Указание полного пути
+            return View("/Views/Good/GoodType/Index.cshtml", goodTypes); 
         }
         [HttpGet]
         public IActionResult Create()
         {
-            return View("/Views/Good/GoodType/Create.cshtml", new GoodType());  // Указание полного пути
+            return View("/Views/Good/GoodType/Create.cshtml", new GoodType());  
         }
 
         // Метод для сохранения нового типа товара

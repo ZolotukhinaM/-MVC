@@ -10,19 +10,18 @@ namespace Курсовая_работа_MVC
             var builder = WebApplication.CreateBuilder(args);
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-            // Add services to the container.
             builder.Services.AddControllersWithViews();
                     builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddDbContext<NewAppContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("GoodsConnection")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("GoodsConnection")));
 
             builder.Services.AddAuthentication("CookieAuth")
                 .AddCookie("CookieAuth", config =>
                 {
-                    config.LoginPath = "/Account/Login";
-                    config.LogoutPath = "/Account/Logout";
-                    config.AccessDeniedPath = "/Account/AccessDenied";
+                    config.LoginPath = "/Account/Login"; // Для неавторизированных
+                    config.LogoutPath = "/Account/Logout"; // Выход
+                    config.AccessDeniedPath = "/Account/AccessDenied"; // Если нет доступа
                 });
 
             builder.Services.AddAuthorization();
@@ -30,11 +29,9 @@ namespace Курсовая_работа_MVC
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -43,7 +40,7 @@ namespace Курсовая_работа_MVC
 
             app.UseRouting();
 
-            app.UseAuthentication(); // 🔥 Добавь эту строку обязательно!
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

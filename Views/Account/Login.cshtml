@@ -3,9 +3,11 @@
 }
 
 <form asp-action="Login" method="post">
+
     <div style="margin-bottom: 10px;">
         <label for="name">Имя:</label>
         <input type="text" id="name" name="name" />
+        <!-- Обработка ошибки --> 
         @if (ViewBag.NameError != null)
         {
             <span style="color: red; font-size: 12px;">@ViewBag.NameError</span>
@@ -16,7 +18,6 @@
         <label for="password">Пароль:</label>
         <div class="password-container">
             <input type="password" id="password" name="password" style="flex-grow: 1; margin-right: 10px;" />
-            <!-- Кнопка для скрытия/отображения пароля -->
             <button type="button" id="togglePassword" class="eye-icon">
                 👁️
             </button>
@@ -35,6 +36,7 @@
     <p style="color:red;">@ViewBag.Message</p>
 }
 
+<!-- Скрытие пароля точками -->
 <script>
     document.getElementById('togglePassword').addEventListener('click', function () {
         var passwordField = document.getElementById('password');

@@ -16,6 +16,7 @@
 
 <h2>Добавить нового сотрудника</h2>
 
+<!-- Сообщение об успешном добавлении -->
 @if (ViewBag.Success != null)
 {
     <div style="color: green; font-weight: bold; margin-bottom: 15px;">
@@ -50,9 +51,8 @@
 </form>
 
 <br />
-<!-- Кнопка возвращения на панель администратора -->
+
 <a href="@Url.Action("Index", "Admin")" class="btn btn-primary">Вернуться на панель администратора</a>
-<!-- Кнопка возвращения к списку сотрудников -->
 <a href="@Url.Action("UserManagement", "Admin")" class="btn btn-secondary" style="margin-left: 10px;">Вернуться к управлению сотрудниками</a>
 
 @section Scripts {
@@ -63,7 +63,6 @@
             passwordInput.type = type;
         });
     </script>
-
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

@@ -135,7 +135,6 @@ else
     <div class="alert alert-info">В этом заказе нет товаров</div>
 }
 
-
 <div class="mt-4">
     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
         <i class="fas fa-edit"></i> Редактировать
@@ -159,10 +158,8 @@ else
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Обработка кнопки удаления товара
             $('.btn-outline-danger').click(function () {
                 if (confirm('Вы уверены, что хотите удалить этот товар из заказа?')) {
-                    // Здесь будет логика удаления товара
                     $(this).closest('tr').remove();
                 }
             });

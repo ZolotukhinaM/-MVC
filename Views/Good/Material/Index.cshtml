@@ -2,10 +2,7 @@
 
 <h2>Материалы товаров</h2>
 
-<!-- Кнопка для добавления материала -->
 <a href="@Url.Action("Create")" class="btn btn-success">➕ Добавить материал</a>
-
-<!-- Кнопка для возвращения на панель товаров -->
 <a href="@Url.Action("Index", "Good")" class="btn btn-secondary" style="margin-bottom: 15px;">⬅️ Назад к панели товаров</a>
 
 <table class="table">
@@ -19,7 +16,7 @@
         @foreach (var material in Model)
         {
             <tr>
-                <td>@material.TypeOfMaterial</td> <!-- Исправили здесь -->
+                <td>@material.TypeOfMaterial</td>
                 <td>
                     <a href="@Url.Action("Edit", new { id = material.Id })" class="btn btn-warning">✏️ Редактировать</a>
                     <form asp-action="Delete" asp-controller="Material" method="post">

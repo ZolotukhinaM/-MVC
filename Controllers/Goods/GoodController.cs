@@ -12,24 +12,22 @@ public class GoodController : Controller
     {
         _context = context;
     }
-    // Страница со списком товаров, поиск и CRUD операции
     public IActionResult Index(string name, string color, long? categoryId, long? typeId, long? materialId)
     {
         var query = _context.Goods
             .Include(g => g.Category)
             .Include(g => g.Type)
             .Include(g => g.Material)
+            .OrderBy(g => g.Name_Of_Good) // Добавляем сортировку по названию
             .AsQueryable();
 
-        // Применение фильтров по запросу
         if (!string.IsNullOrWhiteSpace(name))
             query = query.Where(g => g.Name_Of_Good.Contains(name));
 
         if (!string.IsNullOrWhiteSpace(color))
             query = query.Where(g => g.Color != null && g.Color.Contains(color));
 
-        // Обработка категории: если categoryId пустой, фильтрация по категории не применяется
-        if (categoryId.HasValue && categoryId.Value > 0) // Проверяем, что значение categoryId указано
+        if (categoryId.HasValue && categoryId.Value > 0)
             query = query.Where(g => g.Good_Category == categoryId);
 
         if (typeId.HasValue && typeId.Value > 0)
@@ -38,12 +36,11 @@ public class GoodController : Controller
         if (materialId.HasValue && materialId.Value > 0)
             query = query.Where(g => g.Material_Type == materialId);
 
-        // Получаем данные для фильтров (категории, типы, материалы)
+        // Получаем данные для фильтров
         ViewBag.Categories = _context.GoodCategories.ToList();
         ViewBag.Types = _context.GoodTypes.ToList();
         ViewBag.Materials = _context.Materials.ToList();
 
-        // Возвращаем представление со списком товаров и фильтрами
         return View(query.ToList());
     }
     public IActionResult AddItemsToSet(long setId)
@@ -54,14 +51,15 @@ public class GoodController : Controller
             return NotFound();
         }
 
-        // Получаем список всех товаров (кроме наборов)
+        // Добавляем сортировку по названию
         var goods = _context.Goods
             .Where(g => !g.IsSet)
             .Include(g => g.Category)
+            .OrderBy(g => g.Name_Of_Good) // Сортировка по алфавиту
             .ToList();
 
         ViewBag.Set = set;
-        return View(goods); // Передаем список товаров как модель
+        return View(goods);
     }
 
     [HttpPost]
@@ -125,13 +123,10 @@ public class GoodController : Controller
     {
         try
         {
-            Console.WriteLine($"Запрос товаров для набора {setId}");
             var items = _context.SetComposition
                 .Where(sc => sc.SetId == setId)
                 .Include(sc => sc.Good)
                 .ToList();
-
-            Console.WriteLine($"Найдено товаров: {items.Count}");
 
             var result = items.Select(sc => new {
                 id = sc.Id,
@@ -156,25 +151,20 @@ public class GoodController : Controller
     [HttpDelete("Good/RemoveSetItem/{id}")]
     public IActionResult RemoveSetItem(long id)
     {
-        Console.WriteLine($"Получен запрос на удаление элемента набора: {id}");
-
         try
         {
             var item = _context.SetComposition.Find(id);
             if (item == null)
             {
-                Console.WriteLine("Элемент не найден");
                 return Json(new { success = false, error = "Элемент не найден" });
             }
 
             _context.SetComposition.Remove(item);
             _context.SaveChanges();
-            Console.WriteLine("Элемент успешно удален");
             return Json(new { success = true });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при удалении: {ex.Message}");
             return Json(new
             {
                 success = false,
@@ -189,7 +179,7 @@ public class GoodController : Controller
         ViewBag.Categories = _context.GoodCategories.ToList();
         ViewBag.Types = _context.GoodTypes.ToList();
         ViewBag.Materials = _context.Materials.ToList();
-        ViewBag.AllGoods = _context.Goods.ToList();
+        ViewBag.AllGoods = _context.Goods.ToList(); // Все товары, чтобы выбирать товары в набор
 
         return PartialView("_CreateGood", new Goods());
     }
@@ -221,7 +211,7 @@ public class GoodController : Controller
                 _context.Goods.Add(goods);
                 _context.SaveChanges();
 
-                if (goods.IsSet)
+                if (goods.IsSet) // Если товар - набор, перенапрвляем на стрвницу добавления товаров в набор
                 {
                     return Json(new
                     {
@@ -254,43 +244,21 @@ public class GoodController : Controller
             errors = errors
         });
     }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Edit(Goods goods)
+    [HttpGet]
+    public IActionResult EditGood(long id)
     {
-        // Удаляем ненужные проверки для навигационных свойств
-        ModelState.Remove(nameof(Goods.Category));
-        ModelState.Remove(nameof(Goods.Type));
-        ModelState.Remove(nameof(Goods.Material));
-
-        if (ModelState.IsValid)
+        var good = _context.Goods.Find(id);
+        if (good == null)
         {
-            // Проверка на дубликат названия (исключая текущий товар)
-            if (_context.Goods.Any(g => g.Name_Of_Good == goods.Name_Of_Good && g.Id != goods.Id))
-            {
-                ModelState.AddModelError("Name_Of_Good", "Товар с таким названием уже существует.");
-            }
-            else
-            {
-                try
-                {
-                    _context.Update(goods);
-                    _context.SaveChanges();
-                    return RedirectToAction("Index"); // Успешное сохранение - переходим к списку
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Ошибка при сохранении: " + ex.Message);
-                }
-            }
+            return NotFound();
         }
 
-        // Заполняем ViewBag для выпадающих списков при ошибке
+        // Загружаем необходимые данные для выпадающих списков
         ViewBag.Categories = _context.GoodCategories.ToList();
         ViewBag.Types = _context.GoodTypes.ToList();
         ViewBag.Materials = _context.Materials.ToList();
-        return View(goods); // Возвращаем представление с ошибками
+
+        return PartialView("_EditGood", good);
     }
 
     [HttpPost]
@@ -347,7 +315,6 @@ public class GoodController : Controller
             errors = errors
         });
     }
-    // Удаление товара
     public IActionResult Delete(long id)
     {
         var goods = _context.Goods.Find(id);

@@ -33,41 +33,28 @@ else if (User.IsInRole("Seller"))
 
 <!-- Форма поиска -->
 <div class="row mb-4">
-    <div class="col-md-8">
-        <form asp-action="Index" method="get" class="form-inline">
-            <div class="form-row align-items-center">
-                <!-- Поле для имени -->
-                <div class="col-auto">
-                    <input type="text" name="name" class="form-control mb-2" 
-                           placeholder="Имя" 
-                           value="@name" />
-                </div>
-                
-                <!-- Поле для фамилии -->
-                <div class="col-auto">
-                    <input type="text" name="surname" class="form-control mb-2" 
-                           placeholder="Фамилия (необязательно)" 
-                           value="@surname" />
-                </div>
-                
-                <!-- Кнопки -->
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary mb-2">
-                        <i class="fas fa-search"></i> Найти
-                    </button>
-                    @if (!string.IsNullOrEmpty(name) || !string.IsNullOrEmpty(surname))
-                    {
-                        <a asp-action="Index" class="btn btn-outline-secondary mb-2">
-                            <i class="fas fa-times"></i> Сбросить
-                        </a>
-                    }
-                </div>
-            </div>
+    <div class="col-md-12">
+        <form asp-action="Index" method="get" class="d-flex flex-wrap align-items-center gap-2">
+            <input type="text" name="name" class="form-control"
+                   placeholder="Имя"
+                   value="@name" />
+            <input type="text" name="surname" class="form-control"
+                   placeholder="Фамилия (необязательно)"
+                   value="@surname" />
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Найти
+            </button>
+
+            @if (!string.IsNullOrEmpty(name) || !string.IsNullOrEmpty(surname))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Сбросить
+                </a>
+            }
         </form>
     </div>
 </div>
 
-<!-- Кнопки действий -->
 <div class="mb-3">
     <a href="@Url.Action("Create")" class="btn btn-success">➕ Добавить заказчика</a>
 </div>
@@ -114,7 +101,6 @@ else
        
     </div>
 }
-
 @section Scripts {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 }

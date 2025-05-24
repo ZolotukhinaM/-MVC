@@ -3,12 +3,14 @@
 @{
     ViewData["Title"] = "Управление сотрудниками";
 }
+<!-- Сообщение об успехе -->
 @if (TempData["Success"] != null)
 {
     <div id="successMessage" class="alert alert-success" style="font-weight: bold;">
         @TempData["Success"]
     </div>
 }
+
 @section Scripts {
     <script>
         setTimeout(function () {
@@ -20,7 +22,7 @@
                     message.style.display = 'none';
                 }, 500);
             }
-        }, 3000); // 3000 миллисекунд = 3 секунды
+        }, 3000); // 3000 миллисекунд = 3 секунды - сообщение исчезает
     </script>
 }
 
@@ -50,6 +52,7 @@
                         <input type="hidden" name="id" value="@user.Id" />
                         <button type="submit" class="btn btn-sm btn-warning">@((user.IsAdmin ? "Сделать продавцом" : "Сделать админом"))</button>
                     </form>
+                    <!-- Удаление пользователя с подтверждением -->
                     <form asp-action="DeleteUser" method="post" style="display:inline" onsubmit="return confirm('Удалить сотрудника?');">
                         <input type="hidden" name="id" value="@user.Id" />
                         <button type="submit" class="btn btn-sm btn-danger">Удалить</button>

@@ -34,9 +34,8 @@ else if (User.IsInRole("Seller"))
     🧵 Материалы товаров
 </a>
 
-<h2 class="text-xl font-bold mb-4">Фильтр товаров</h2>
-
 <!-- Форма поиска товаров -->
+<h2 class="text-xl font-bold mb-4">Фильтр товаров</h2>
 <form method="get" asp-action="Index">
     <div>
         <label>Название:</label>
@@ -85,10 +84,9 @@ else if (User.IsInRole("Seller"))
     <button type="submit">Поиск</button>
 </form>
 
-<!-- Кнопка добавления нового товара -->
 <button type="button" class="btn btn-outline-success createBtn" id="addGoodBtn">Добавить товар</button>
 
-<!-- Таблица с результатами -->
+<!-- Таблица с товарами -->
 <h3 class="text-lg mt-4 mb-2">Результаты:</h3>
 <table class="table">
     <thead>
@@ -130,18 +128,18 @@ else if (User.IsInRole("Seller"))
     </tbody>
 </table>
 
+<!-- Значения фильтров сохраняются после отправки формы -->
 <div id="modalContainer"></div>
-
 @section Scripts {
+    // внешние библиотеки
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
-        toastr.options = {
+        toastr.options = 
+        {
             "closeButton": true,
             "progressBar": true,
             "positionClass": "toast-top-right",
@@ -150,7 +148,8 @@ else if (User.IsInRole("Seller"))
 
         $(document).ready(function () {
             // Обработчик для кнопки "Добавить товар"
-            $('#addGoodBtn').click(function () {
+            $('#addGoodBtn').click(function () 
+            {
                 $.ajax({
                     url: '@Url.Action("Create", "Good")',
                     type: 'GET',
@@ -223,7 +222,8 @@ else if (User.IsInRole("Seller"))
                 });
             });
 
-            $(document).on("click", ".editBtn", function (e) {
+            $(document).on("click", ".editBtn", function (e) 
+            {
                 e.preventDefault();
                 var id = $(this).data("id");
 
@@ -250,7 +250,8 @@ else if (User.IsInRole("Seller"))
             });
 
             // Обработка формы редактирования товара через AJAX
-            $(document).on("submit", "#editGoodForm", function (e) {
+            $(document).on("submit", "#editGoodForm", function (e) 
+            {
                 e.preventDefault();
                 var form = $(this);
                 var formData = new FormData(this);
@@ -307,7 +308,8 @@ else if (User.IsInRole("Seller"))
             });
 
             // Удаление
-            $(document).on("click", ".deleteBtn", function () {
+            $(document).on("click", ".deleteBtn", function () 
+            {
                 var id = $(this).data("id");
                 $.ajax({
                     url: '@Url.Action("Delete", new { id = "__id__" })'.replace("__id__", id),

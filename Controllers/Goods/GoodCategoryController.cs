@@ -21,14 +21,14 @@ namespace Курсовая_работа_MVC.Controllers.Goods
         public IActionResult Index()
         {
             var categories = _context.GoodCategories.ToList();
-            return View("/Views/Good/GoodCategory/Index.cshtml", categories);  // Указание полного пути
+            return View("/Views/Good/GoodCategory/Index.cshtml", categories);
         }
 
         // Метод для отображения формы создания категории
         [HttpGet]
         public IActionResult Create()
         {
-            return View("/Views/Good/GoodCategory/Create.cshtml", new GoodCategory());  // Указание полного пути
+            return View("/Views/Good/GoodCategory/Create.cshtml", new GoodCategory());
         }
         [HttpPost]
         public IActionResult Create(GoodCategory category)
@@ -67,7 +67,7 @@ namespace Курсовая_работа_MVC.Controllers.Goods
             {
                 Console.WriteLine($"Ошибка: {error.ErrorMessage}");
             }
-            return View("/Views/Good/GoodCategory/Create.cshtml", category);  // Указание полного пути
+            return View("/Views/Good/GoodCategory/Create.cshtml", category);
         }
 
         // Метод для отображения формы редактирования категории
@@ -76,7 +76,7 @@ namespace Курсовая_работа_MVC.Controllers.Goods
         {
             var category = _context.GoodCategories.Find(id);
             if (category == null) return NotFound();
-            return View("/Views/Good/GoodCategory/Edit.cshtml", category);  // Указание полного пути
+            return View("/Views/Good/GoodCategory/Edit.cshtml", category); 
         }
 
         [HttpPost]
@@ -87,7 +87,7 @@ namespace Курсовая_работа_MVC.Controllers.Goods
                 // Проверяем, существует ли уже такая категория с другим идентификатором
                 if (_context.GoodCategories.Any(c => c.good_category == category.good_category && c.Id != category.Id))
                 {
-                    ModelState.AddModelError("good_category", "Категория с таким названием уже существует."); // Исправлено имя ошибки
+                    ModelState.AddModelError("good_category", "Категория с таким названием уже существует."); 
                 }
                 else
                 {
